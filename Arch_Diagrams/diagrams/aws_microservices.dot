@@ -1,0 +1,76 @@
+// AWS Microservices Architecture DOT file - Enhanced with S3
+digraph AWS_Microservices {
+  rankdir=LR;
+  graph [fontsize=12 labelloc=t label="AWS Microservices Architecture: Spring Boot Microservices with On-Prem SQL, MSK, EKS, Terraform, GitLab, JFrog, S3" splines=true];
+  node [shape=box style="rounded,filled" fillcolor="#ffffff" fontname="Helvetica"];
+
+  // VPC
+  subgraph cluster_vpc {
+    label="VPC";
+    style=rounded;
+    color="#2b6cb0";
+
+    // Public Subnets
+    subgraph cluster_public {
+      label="Public Subnets";
+      style=dashed;
+      ALB [label="ALB\n(Application Load Balancer)", fillcolor="#c6f6d5"];
+      NAT [label="NAT Gateway", fillcolor="#fefcbf"];
+      GitLab [label="GitLab (CI/CD)", fillcolor="#d6eaff"];
+      Artifactory [label="JFrog Artifactory", fillcolor="#ffe6f0"];
+      APIGateway [label="API Gateway\n(External APIs)", fillcolor="#e6ffe6"];
+    }
+
+    // Private Subnets
+    subgraph cluster_private {
+      label="Private Subnets";
+      style=dashed;
+      EKS [label="EKS Cluster\n(Spring Boot microservices)", fillcolor="#e6f7ff"];
+      MSK [label="MSK (Kafka)", fillcolor="#fff5e6"];
+      ECR [label="ECR (Container Registry)", fillcolor="#f0fff4"];
+      CloudWatch [label="CloudWatch\n(Logging / Metrics)", fillcolor="#e0ffe0"];
+      SecretsManager [label="Secrets Manager", fillcolor="#ffe0ff"];
+      IAM [label="IAM Roles & Policies", fillcolor="#f0f0f0"];
+      ElastiCache [label="ElastiCache (Redis)\nCaching Layer", fillcolor="#fff0f5"];
+      SNS [label="SNS / SQS\nAsync Messaging", fillcolor="#f0fff0"];
+      Lambda [label="AWS Lambda\nServerless Functions", fillcolor="#fff5e6"];
+      CloudTrail [label="CloudTrail\nAudit & Logs", fillcolor="#f7f7f0"];
+      S3 [label="S3\n(Backups, Logs, Artifacts Storage)", fillcolor="#f7f7ff"];
+    }
+  }
+
+  // On-Prem SQL Server
+  OnPremSQL [shape=box3d label="On-Prem SQL Server\n(JDBC / ODBC Connection)" fillcolor="#ffd6cc"];
+
+  // Infra / IaC and external systems
+  Terraform [shape=ellipse label="Terraform (IaC)" fillcolor="#faf0e6"];
+  Internet [shape=plaintext label="Internet"];
+
+  // Relationships / flows
+  Internet -> ALB;
+  ALB -> APIGateway [label="HTTP/HTTPS"];
+  APIGateway -> EKS [label="Route Requests"];
+  EKS -> MSK [label="Kafka Producer/Consumer"];
+  EKS -> OnPremSQL [label="JDBC / ODBC"];
+  EKS -> ElastiCache [label="Cache Reads/Writes"];
+  EKS -> SNS [label="Publish Messages"];
+  Lambda -> MSK [label="Consume Kafka / Events"];
+  Lambda -> SNS [label="Process Async Messages"];
+  EKS -> S3 [label="Backups / Write Logs / Artifacts"];
+  EKS -> CloudWatch [label="Metrics / Logs"];
+  EKS -> SecretsManager [label="Retrieve Secrets"];
+  GitLab -> ECR [label="Push Docker Images"];
+  GitLab -> Artifactory [label="Publish Binaries / Packages"];
+  GitLab -> Terraform [label="Trigger Pipelines / Apply"];
+  Terraform -> EKS [label="Provision / Update"];
+  Terraform -> MSK;
+  Artifactory -> EKS [label="Optional: Pull During Build/Deploy", style=dashed];
+
+  // Monitoring & Audit
+  CloudWatch -> EKS [style=dashed, label="Collect metrics & logs"];
+  CloudTrail -> Terraform [style=dashed, label="Audit API calls"];
+  CloudTrail -> EKS [style=dashed, label="Audit Actions"];
+
+  // Grouping
+  { rank = same; GitLab; Artifactory; Terraform; APIGateway }
+}

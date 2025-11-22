@@ -1,0 +1,61 @@
+// AWS EKS + MSK + On-Prem SQL Server architecture DOT file
+digraph AWS_EKS_MSK_OnPrem {
+  rankdir=LR;
+  graph [fontsize=12 labelloc=t label="AWS Hybrid Architecture: EKS + MSK + On-Prem SQL" splines=true];
+  node [shape=box style="rounded,filled" fillcolor="#ffffff" fontname="Helvetica"];
+
+  // VPC and subnets
+  subgraph cluster_vpc {
+    label="AWS VPC";
+    color="#2b6cb0";
+
+    subgraph cluster_public {
+      label="Public Subnets";
+      style=dashed;
+      ALB [label="ALB\n(Application Load Balancer)", fillcolor="#c6f6d5"];
+      NAT [label="NAT Gateway", fillcolor="#fefcbf"];
+    }
+
+    subgraph cluster_private {
+      label="Private Subnets";
+      style=dashed;
+      EKS [label="EKS Cluster\n(Spring Boot microservices)", fillcolor="#e6f7ff"];
+      MSK [label="Amazon MSK\n(Managed Kafka)", fillcolor="#fff5e6"];
+      ECR [label="ECR\n(Container Registry)", fillcolor="#f0fff4"];
+      S3 [label="S3\n(Backups / Artifacts)", fillcolor="#f7f7ff"];
+    }
+  }
+
+  // On-premises environment (outside VPC)
+  subgraph cluster_onprem {
+    label="On-Prem Data Center";
+    color="#6b46c1";
+    style=rounded;
+    OnPremSQL [label="On-Prem SQL Server\n(Primary Database)", fillcolor="#fff0f6"];
+    OnPremKafkaBridge [label="Kafka Bridge / Network Gateway", fillcolor="#f0fff0"];
+  }
+
+  // Connectivity (hybrid network)
+  VPN [shape=ellipse label="VPN / Direct Connect" fillcolor="#fff7ed"];
+
+  // Flows
+  Internet [shape=plaintext label="Internet"];
+  Internet -> ALB;
+  ALB -> EKS [label="HTTP/HTTPS"];
+
+  // EKS interactions
+  EKS -> MSK [label="Kafka Producer/Consumer\n(secure TLS)" style=solid];
+  EKS -> ECR [label="Pull images\n(from CI/CD)"];
+  EKS -> S3 [label="Read/Write artifacts/backups"];
+
+  // Hybrid connectivity to on-prem DB
+  EKS -> VPN [label="DB traffic (JDBC) or service calls)" style=dashed];
+  VPN -> OnPremSQL [label="JDBC / SQL over VPN" style=dashed];
+
+  // Optional: MSK Mirror or Bridge to on-prem
+  OnPremKafkaBridge -> MSK [label="Mirror / Bridge (optional)" style=dashed];
+  OnPremKafkaBridge -> OnPremSQL [label="Stream -> SQL (optional)"];
+
+  // Grouping helpers
+  { rank = same; ALB; VPN; Internet }
+}

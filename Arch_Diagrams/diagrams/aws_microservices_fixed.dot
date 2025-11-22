@@ -1,0 +1,32 @@
+// Simplified AWS Microservices Architecture DOT (fixed)
+digraph AWS_Microservices_Fixed {
+  rankdir=LR;
+  graph [fontsize=12 labelloc=t label="AWS Microservices Architecture (fixed)"];
+  node [shape=box style="rounded,filled" fillcolor="#ffffff" fontname="Helvetica"];
+
+  // Public
+  ALB [label="ALB\n(Application Load Balancer)", fillcolor="#c6f6d5"];
+  APIGateway [label="API Gateway", fillcolor="#e6ffe6"];
+  GitLab [label="GitLab (CI/CD)", fillcolor="#d6eaff"];
+  Artifactory [label="JFrog Artifactory", fillcolor="#ffe6f0"];
+
+  // Private
+  EKS [label="EKS Cluster\n(Spring Boot microservices)", fillcolor="#e6f7ff"];
+  MSK [label="MSK (Kafka)", fillcolor="#fff5e6"];
+  ECR [label="ECR (Container Registry)", fillcolor="#f0fff4"];
+  S3 [label="S3\n(Backups, Logs, Artifacts)", fillcolor="#f7f7ff"];
+  OnPremSQL [label="On-Prem SQL Server\n(JDBC)", shape=box3d fillcolor="#ffd6cc"];
+
+  // Flows
+  Internet [shape=plaintext label="Internet"];
+  Internet -> ALB -> APIGateway -> EKS;
+  EKS -> MSK [label="Kafka Producer/Consumer"];
+  EKS -> OnPremSQL [label="JDBC / ODBC"];
+  EKS -> ECR [label="Pull images"];
+  EKS -> S3 [label="Artifacts / Logs"];
+  GitLab -> ECR [label="Push images"];
+  GitLab -> Artifactory [label="Publish packages"];
+  GitLab -> EKS [label="CI/CD -> Deploy"];
+  Artifactory -> EKS [label="Optional pull" style=dashed];
+
+}

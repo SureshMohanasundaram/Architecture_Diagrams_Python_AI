@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="EKS MSK OnPrem" id="aws-eks-msk-onprem">
+    <![CDATA[
+    <mxGraphModel dx="1294" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="internet" value="Internet" style="shape=cloud;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="20" y="120" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="alb" value="ALB\n(Application Load Balancer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c6f6d5;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="160" y="120" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eks" value="EKS Cluster\n(Spring Boot MS)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6f7ff;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="420" y="100" width="260" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="msk" value="Amazon MSK\n(Kafka)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5e6;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="700" y="80" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="onprem" value="On-Prem SQL Server\n(JDBC)" style="shape=ext;whiteSpace=wrap;html=1;fillColor=#ffd6cc;strokeColor=#6b46c1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="260" width="260" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ecr" value="ECR (Container Registry)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fff4;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="700" y="160" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s3" value="S3\n(Artifacts / Backups)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7f7ff;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="700" y="240" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="gitlab" value="GitLab (CI/CD)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d6eaff;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="160" y="240" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="art" value="JFrog Artifactory" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6f0;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="160" y="320" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tf" value="Terraform (IaC)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#faf0e6;strokeColor=#2b6cb0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="320" width="140" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" parent="1" source="internet" target="alb">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" parent="1" source="alb" target="eks">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" parent="1" source="eks" target="msk">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" parent="1" source="eks" target="onprem">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" parent="1" source="gitlab" target="ecr">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" parent="1" source="gitlab" target="art">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;html=1;" edge="1" parent="1" source="gitlab" target="tf">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;dashed=1;html=1;" edge="1" parent="1" source="art" target="eks">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+    ]]>
+  </diagram>
+</mxfile>
