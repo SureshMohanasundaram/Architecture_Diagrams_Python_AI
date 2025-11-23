@@ -8,7 +8,7 @@ digraph AWS_Microservices_Fixed {
   ALB [label="ALB\n(Application Load Balancer)", fillcolor="#c6f6d5"];
   APIGateway [label="API Gateway", fillcolor="#e6ffe6"];
   GitLab [label="GitLab (CI/CD)", fillcolor="#d6eaff"];
-  Artifactory [label="JFrog Artifactory", fillcolor="#ffe6f0"];
+  Artifactory [label="Artifactory Artifactory", fillcolor="#ffe6f0"];
 
   // Private
   EKS [label="EKS Cluster\n(Spring Boot microservices)", fillcolor="#e6f7ff"];
@@ -30,3 +30,4 @@ digraph AWS_Microservices_Fixed {
   Artifactory -> EKS [label="Optional pull" style=dashed];
 
 }
+

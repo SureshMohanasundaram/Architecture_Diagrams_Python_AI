@@ -1,0 +1,93 @@
+// Contoso Generated AWS Architecture DOT
+digraph Contoso_Architecture {
+  rankdir=TB;
+  graph [fontsize=12 labelloc=t label="Contoso AWS Architecture: VPC with 3 subnets, Web/App/Data tiers, Monitoring" splines=true];
+  node [shape=box style="rounded,filled" fillcolor="#ffffff" fontname="Helvetica"];
+
+  // VPC cluster
+  subgraph cluster_vpc {
+    label="VPC: vpc-contoso-001 (10.10.0.0/16)";
+    color="#2b6cb0";
+
+    // Subnets
+    subgraph cluster_frontend {
+      label="subnet-frontend (10.10.1.0/24)";
+      style=dashed;
+      CloudFront [shape=component label="CloudFront\n(cf-contoso)", fillcolor="#e3f2fd"];
+      ALB [label="ALB / WAF\n(alb-contoso)", fillcolor="#c6f6d5"];
+      ASG [label="ASG: asg-web-portal\nEC2 Web App", fillcolor="#e8f5e9"];
+      WebApp [label="app-frontend-portal", fillcolor="#fffde7"];
+    }
+
+    subgraph cluster_backend {
+      label="subnet-backend (10.10.2.0/24)";
+      style=dashed;
+      ASG_Back [label="ASG Backend / ECS\n(asg-backend)\napp-order-api", fillcolor="#e6f7ff"];
+      Lambda [label="Lambda\n(lambda-order-processor)", shape=oval fillcolor="#fff5e6"];
+      SQS [label="SQS\n(sqs-orders)", shape=component fillcolor="#f0fff4"];
+    }
+
+    subgraph cluster_data {
+      label="subnet-data (10.10.3.0/24)";
+      style=dashed;
+      RDS [label="RDS\n(rds-orders)", shape=component fillcolor="#fff3e0"];
+      S3 [label="S3\n(s3-contoso-data)", shape=component fillcolor="#f7f7ff"];
+      KMS [label="KMS\n(kms-contoso)", shape=component fillcolor="#fff0f5"];
+      Secrets [label="Secrets Manager\n(secrets-contoso)", shape=component fillcolor="#fff0f5"];
+      VPC_EP_RDS [label="VPC Endpoint\n(RDS)", fillcolor="#f0f8ff"];
+      VPC_EP_S3 [label="VPC Endpoint\n(S3)", fillcolor="#f0f8ff"];
+      VPC_EP_KMS [label="VPC Endpoint\n(KMS)", fillcolor="#f0f8ff"];
+    }
+
+    // Network firewall and route tables
+    NWFW [label="Network Firewall\n(nwfw-contoso)", shape=rectangle fillcolor="#ffe6cc"];
+    IGW [label="Internet Gateway", shape=diamond fillcolor="#ffffff"];
+  }
+
+  // Monitoring
+  CloudWatch [label="CloudWatch Logs\n(cw-logs-contoso)", shape=component fillcolor="#e0ffe0"];
+  XRay [label="X-Ray / App Insights\n(cw-app-insights)", shape=component fillcolor="#e0ffe0"];
+
+  // Connections / arrows (per instructions.md)
+  // Top flow: Users -> CloudFront -> ALB -> Web App
+  Users [shape=plaintext label="Users"];
+  Users -> CloudFront -> ALB -> ASG -> WebApp [label="HTTP/HTTPS"];
+
+  // Web App -> Backend API
+  WebApp -> ASG_Back [label="API calls (HTTPS)"];
+
+  // Backend API -> RDS + S3 (via VPC endpoints)
+  ASG_Back -> VPC_EP_RDS [label="JDBC via VPC Endpoint"];
+  VPC_EP_RDS -> RDS;
+  ASG_Back -> VPC_EP_S3 [label="S3 access via VPC Endpoint"];
+  VPC_EP_S3 -> S3;
+
+  // Lambda -> SQS -> RDS
+  Lambda -> SQS;
+  SQS -> VPC_EP_RDS -> RDS [label="Process Orders -> DB"];
+
+  // KMS / Secrets used by all apps
+  ASG -> KMS [label="Encrypt/Decrypt"];
+  ASG_Back -> KMS;
+  WebApp -> Secrets;
+  ASG_Back -> Secrets;
+
+  // Monitoring flows
+  WebApp -> CloudWatch;
+  ASG_Back -> CloudWatch;
+  Lambda -> CloudWatch;
+  RDS -> CloudWatch;
+
+  // Network routing
+  PublicRoute [label="Route Table: Public -> IGW"];
+  PrivateRoute [label="Route Table: Private -> Network Firewall"];
+  ASG -> PublicRoute;
+  ASG_Back -> PrivateRoute;
+  PrivateRoute -> NWFW;
+
+  // Group placements
+  { rank = same; CloudWatch; XRay }
+
+  // Render hints
+  graph [splines="ortho" nodesep="0.8" ranksep="1.2" fontsize="14" bgcolor="white" pad="0.5"];
+}

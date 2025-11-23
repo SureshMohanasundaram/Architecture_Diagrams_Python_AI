@@ -1,7 +1,7 @@
 // AWS Microservices Architecture DOT file - Enhanced with S3
 digraph AWS_Microservices {
   rankdir=LR;
-  graph [fontsize=12 labelloc=t label="AWS Microservices Architecture: Spring Boot Microservices with On-Prem SQL, MSK, EKS, Terraform, GitLab, JFrog, S3" splines=true];
+  graph [fontsize=12 labelloc=t label="AWS Microservices Architecture: Spring Boot Microservices with On-Prem SQL, MSK, EKS, Terraform, GitLab, Artifactory, S3" splines=true];
   node [shape=box style="rounded,filled" fillcolor="#ffffff" fontname="Helvetica"];
 
   // VPC
@@ -17,7 +17,7 @@ digraph AWS_Microservices {
       ALB [label="ALB\n(Application Load Balancer)", fillcolor="#c6f6d5"];
       NAT [label="NAT Gateway", fillcolor="#fefcbf"];
       GitLab [label="GitLab (CI/CD)", fillcolor="#d6eaff"];
-      Artifactory [label="JFrog Artifactory", fillcolor="#ffe6f0"];
+      Artifactory [label="Artifactory Artifactory", fillcolor="#ffe6f0"];
       APIGateway [label="API Gateway\n(External APIs)", fillcolor="#e6ffe6"];
     }
 
@@ -74,3 +74,4 @@ digraph AWS_Microservices {
   // Grouping
   { rank = same; GitLab; Artifactory; Terraform; APIGateway }
 }
+

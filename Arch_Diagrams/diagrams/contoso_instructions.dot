@@ -39,7 +39,7 @@ digraph ContosoArchitecture {
 
   // CI/CD tools (right side)
   gitlab [label="GitLab (CI/CD)"];
-  artifactory [label="JFrog Artifactory"];
+  artifactory [label="Artifactory Artifactory"];
 
   // Monitoring
   cw_logs [label="CloudWatch Logs\n(cw-logs-contoso)", shape=note];
@@ -90,3 +90,4 @@ digraph ContosoArchitecture {
   // (Removed advanced rank hints for compatibility with pydot parser)
 
 }
+
