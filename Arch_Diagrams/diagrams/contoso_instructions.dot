@@ -1,0 +1,92 @@
+digraph ContosoArchitecture {
+  graph [splines=ortho, nodesep=0.8, ranksep=1.2, fontsize=14, bgcolor=white, pad=0.5];
+  node [shape=rect, style=rounded, fontsize=12];
+  rankdir=TB;
+
+  subgraph cluster_vpc {
+    label = "VPC: vpc-contoso-001 (10.10.0.0/16)";
+    style=filled; color="#f8fafc"; fillcolor="#ffffff";
+
+    subgraph cluster_frontend {
+      label = "subnet-frontend (10.10.1.0/24)";
+      cf [label="CloudFront\n(cf-contoso)", shape=oval];
+      alb [label="ALB / WAF\n(alb-contoso)"];
+      asg [label="ASG: asg-web-portal\nWeb App: app-frontend-portal"];
+    }
+
+    subgraph cluster_backend {
+      label = "subnet-backend (10.10.2.0/24)";
+      eks [label="EKS Cluster\n(eks-backend-cluster)", shape=folder];
+      app1 [label="app-order-api"];
+      app2 [label="app-payment-service"];
+    }
+
+    subgraph cluster_data {
+      label = "subnet-data (10.10.3.0/24)";
+      msk [label="MSK (Kafka)\n(msk-orders)"];
+      kms [label="KMS / Secrets Manager\n(kms-contoso / secrets-contoso)"];
+      endpoints [label="VPC Endpoints\n(MSK, KMS, Secrets)", shape=note];
+    }
+
+    nwfw [label="Network Firewall\n(nwfw-contoso)", shape=component];
+    sg_front [label="SG: frontend"];
+    sg_back [label="SG: backend"];
+    sg_data [label="SG: data"];
+  }
+
+  // On-premises (outside VPC box visually)
+  sql_onprem [label="On-Prem SQL Server\n(sqlsrv-onprem)", shape=cylinder];
+
+  // CI/CD tools (right side)
+  gitlab [label="GitLab (CI/CD)"];
+  artifactory [label="JFrog Artifactory"];
+
+  // Monitoring
+  cw_logs [label="CloudWatch Logs\n(cw-logs-contoso)", shape=note];
+  cw_insights [label="CloudWatch X-Ray / App Insights\n(cw-app-insights)", shape=note];
+
+  // Connections / edges (as specified)
+  Users [label="Users", shape=cloud];
+  Users -> cf;
+  cf -> alb;
+  alb -> asg [label="HTTP/HTTPS"];
+  asg -> app1 [label="requests"];
+  asg -> app2 [label="requests"];
+
+  // Web App -> Backend (EKS)
+  asg -> eks [label="backend calls"];
+  eks -> app1;
+  eks -> app2;
+
+  // Microservices to On-Prem SQL (secured path)
+  app1 -> sql_onprem [label="JDBC (VPN/DirectConnect)", style=dashed];
+  app2 -> sql_onprem [label="JDBC (VPN/DirectConnect)", style=dashed];
+
+  // Microservices to MSK
+  app1 -> msk [label="produce/consume"];
+  app2 -> msk [label="produce/consume"];
+
+  // CI/CD to EKS
+  gitlab -> eks [label="deploys" ];
+  artifactory -> eks [label="images/artifacts" ];
+
+  // KMS/Secrets and Monitoring
+  eks -> kms [label="encrypt/secrets"];
+  asg -> kms;
+  app1 -> kms;
+  app2 -> kms;
+
+  eks -> cw_logs;
+  asg -> cw_logs;
+  app1 -> cw_insights;
+  app2 -> cw_insights;
+
+  // All outbound through Network Firewall
+  eks -> nwfw [label="outbound"];
+  asg -> nwfw [label="outbound"];
+  app1 -> nwfw [label="outbound"];
+  app2 -> nwfw [label="outbound"];
+
+  // (Removed advanced rank hints for compatibility with pydot parser)
+
+}
